@@ -1,17 +1,22 @@
-package miro.widgetservice.widget;
+package miro.widgetservice.widget.domain;
 
+import lombok.Builder;
 import lombok.Getter;
+import lombok.With;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
-public class Widget {
+@Builder
+public class Widget implements Serializable {
 
+    @With
     private UUID id;
 
-    private Point coordinate;
+    private Point coordinates;
 
     private Integer zIndex;
 
@@ -19,6 +24,7 @@ public class Widget {
 
     private Integer height;
 
+    @With
     private Instant modifiedAt;
 
 }
