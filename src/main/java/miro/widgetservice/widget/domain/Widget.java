@@ -11,9 +11,9 @@ import java.util.UUID;
 
 @Getter
 @Builder
+@With
 public class Widget implements Serializable {
 
-    @With
     private UUID id;
 
     private Point coordinates;
@@ -24,7 +24,6 @@ public class Widget implements Serializable {
 
     private Integer height;
 
-    @With
     private Instant modifiedAt;
 
 }

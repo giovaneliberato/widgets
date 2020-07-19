@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import static java.util.Comparator.comparingInt;
+
 @Repository
 public class WidgetRepository {
 
@@ -19,6 +21,12 @@ public class WidgetRepository {
 
         store.add(widget);
         return widget;
+    }
+
+    public Widget getTopWidget() {
+        return store.stream()
+                .max(comparingInt(Widget::getZIndex))
+                .get();
     }
 
     public List<Widget> fetchAll() {
