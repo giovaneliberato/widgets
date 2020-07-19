@@ -16,12 +16,13 @@ public class WidgetRepository {
     private List<Widget> store = new LinkedList<>();
 
     public Widget save(Widget widget) {
-        widget = widget
+        synchronized (store) {
+            widget = widget
                 .withId(UUID.randomUUID())
                 .withModifiedAt(Instant.now());
-
-        store.add(widget);
-        return widget;
+            store.add(widget);
+            return widget;
+        }
     }
 
     public Widget getTopWidget() {
@@ -53,17 +54,11 @@ public class WidgetRepository {
 
     public void update(List<Widget> toUpdate) {
         var idsToUpdate = toUpdate.stream().collect(toMap(Widget::getId, Function.identity()));
-
-        store = getAll().stream()
-                .map(w -> updateWidgetIById(idsToUpdate, w))
-                .collect(toList());
-    }
-
-    private Widget updateWidgetIById(Map<UUID, Widget> widgetsToUpdate, Widget current) {
-        if (widgetsToUpdate.containsKey(current.getId())) {
-            return widgetsToUpdate.get(current.getId()).withModifiedAt(Instant.now());
+        synchronized (store) {
+            store = getAll().stream()
+                    .map(w -> updateWidgetIById(idsToUpdate, w))
+                    .collect(toList());
         }
-        return current;
     }
 
     public Optional<Widget> getById(UUID widgetId) {
@@ -85,5 +80,12 @@ public class WidgetRepository {
 
             store = widgets.get(false);
         }
+    }
+
+    private Widget updateWidgetIById(Map<UUID, Widget> widgetsToUpdate, Widget current) {
+        if (widgetsToUpdate.containsKey(current.getId())) {
+            return widgetsToUpdate.get(current.getId()).withModifiedAt(Instant.now());
+        }
+        return current;
     }
 }

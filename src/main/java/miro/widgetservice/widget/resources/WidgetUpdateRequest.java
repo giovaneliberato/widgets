@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import miro.widgetservice.widget.domain.Widget;
 
-import javax.validation.constraints.NotEmpty;
 import java.awt.*;
 import java.io.Serializable;
 
