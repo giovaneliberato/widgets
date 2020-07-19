@@ -5,10 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
+import java.util.UUID;
+
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @Controller
 public class WidgetController {
@@ -24,8 +30,14 @@ public class WidgetController {
 
         return new ResponseEntity(
                 WidgetResponse.convertFromDomain(created),
-                HttpStatus.CREATED
+                CREATED
         );
     }
 
+    @GetMapping("/widget/{widgetId}")
+    public ResponseEntity createWidget(@PathVariable("widgetId") UUID widgetId) {
+        return service.getById(widgetId)
+                .map(widget -> new ResponseEntity(WidgetResponse.convertFromDomain(widget), OK))
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

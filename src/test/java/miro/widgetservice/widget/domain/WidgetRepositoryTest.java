@@ -99,17 +99,14 @@ public class WidgetRepositoryTest {
     public void shouldUpdateOnlyApplicableWidgets() {
         var widget1 = repository.save(Widget.builder()
                 .zIndex(1)
-                .modifiedAt(Instant.now())
                 .build());
 
         var widget2 = repository.save(Widget.builder()
                 .zIndex(2)
-                .modifiedAt(Instant.now())
                 .build());
 
         var widget3 = repository.save(Widget.builder()
                 .zIndex(3)
-                .modifiedAt(Instant.now())
                 .build());
 
         repository.update(asList(widget1, widget2));
@@ -118,6 +115,26 @@ public class WidgetRepositoryTest {
         assertThat(widgets.get(widget1.getId()).getModifiedAt()).isAfter(widget1.getModifiedAt());
         assertThat(widgets.get(widget2.getId()).getModifiedAt()).isAfter(widget2.getModifiedAt());
         assertThat(widgets.get(widget3.getId()).getModifiedAt()).isEqualTo(widget3.getModifiedAt());
+    }
 
+    @Test
+    public void shouldGetWidgetById() {
+        repository.save(Widget.builder()
+                .coordinates(new Point(0,0))
+                .height(100)
+                .width(100)
+                .zIndex(1)
+                .build());
+
+        var widget2 = repository.save(Widget.builder()
+                .coordinates(new Point(0,0))
+                .height(200)
+                .width(200)
+                .zIndex(2)
+                .build());
+
+        var retrieved = repository.getById(widget2.getId());
+        assertThat(retrieved).isPresent();
+        assertThat(retrieved.get().getId()).isEqualTo(widget2.getId());
     }
 }

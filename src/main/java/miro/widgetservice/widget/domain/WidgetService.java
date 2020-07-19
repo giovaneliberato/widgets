@@ -1,7 +1,12 @@
 package miro.widgetservice.widget.domain;
 
+import miro.widgetservice.widget.resources.WidgetResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+import java.util.UUID;
 
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
@@ -38,4 +43,7 @@ public class WidgetService {
         return widget.withZIndex(widget.getZIndex() + 1);
     }
 
+    public Optional<Widget> getById(UUID widgetId) {
+        return repository.getById(widgetId);
+    }
 }

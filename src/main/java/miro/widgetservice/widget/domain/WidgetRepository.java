@@ -3,10 +3,7 @@ package miro.widgetservice.widget.domain;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 import static java.util.Comparator.comparingInt;
@@ -61,5 +58,12 @@ public class WidgetRepository {
             return widgetsToUpdate.get(current.getId()).withModifiedAt(Instant.now());
         }
         return current;
+    }
+
+    public Optional<Widget> getById(UUID widgetId) {
+        return getAll()
+                .stream()
+                .filter(w -> w.getId().equals(widgetId))
+                .findFirst();
     }
 }
