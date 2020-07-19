@@ -82,6 +82,12 @@ public class WidgetRepository {
         }
     }
 
+    public void dropAllWidgets() {
+        synchronized (store) {
+            store = new LinkedList<>();
+        }
+    }
+
     private Widget updateWidgetIById(Map<UUID, Widget> widgetsToUpdate, Widget current) {
         if (widgetsToUpdate.containsKey(current.getId())) {
             return widgetsToUpdate.get(current.getId()).withModifiedAt(Instant.now());

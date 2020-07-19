@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.UUID;
 
+import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.*;
 
 @Controller
@@ -19,7 +20,7 @@ public class WidgetController {
     private WidgetService service;
 
 
-    @PostMapping("/widget")
+    @PostMapping("/widgets")
     public ResponseEntity<WidgetResponse> createWidget(@Valid @RequestBody WidgetCreationRequest request) {
         var created = service.create(request.convertToDomain());
 
@@ -29,21 +30,29 @@ public class WidgetController {
         );
     }
 
-    @GetMapping("/widget/{widgetId}")
-    public ResponseEntity createWidget(@PathVariable("widgetId") UUID widgetId) {
+    @GetMapping("/widgets/{widgetId}")
+    public ResponseEntity getWidget(@PathVariable("widgetId") UUID widgetId) {
         return service.getById(widgetId)
                 .map(widget -> new ResponseEntity(WidgetResponse.convertFromDomain(widget), OK))
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/widget/{widgetId}")
+    @GetMapping("/widgets")
+    public ResponseEntity getAllWidgets() {
+        return ResponseEntity.ok(service.getAllWidgets()
+                .stream()
+                .map(WidgetResponse::convertFromDomain)
+                .collect(toList()));
+    }
+
+    @DeleteMapping("/widgets/{widgetId}")
     public ResponseEntity deleteWidget(@PathVariable("widgetId") UUID widgetId) {
         return service.deleteById(widgetId)
                 .map(error -> new ResponseEntity(error, BAD_REQUEST))
                 .orElse(ResponseEntity.ok().build());
     }
 
-    @PatchMapping("/widget/{widgetId}")
+    @PatchMapping("/widgets/{widgetId}")
     public ResponseEntity<WidgetResponse> updateWidget(
             @PathVariable("widgetId") UUID widgetId,
             @RequestBody WidgetUpdateRequest request) {

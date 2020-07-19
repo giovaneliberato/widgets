@@ -3,6 +3,7 @@ package miro.widgetservice.widget.domain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -72,5 +73,9 @@ public class WidgetService {
 
     public static <T> T coalesce(T a, T b) {
         return a != null ? a : b;
+    }
+
+    public List<Widget> getAllWidgets() {
+        return repository.getAll();
     }
 }

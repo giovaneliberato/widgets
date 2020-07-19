@@ -3,6 +3,7 @@ package miro.widgetservice.widget.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import miro.widgetservice.widget.domain.Widget;
 import miro.widgetservice.widget.domain.WidgetRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,11 @@ public class WidgetControllerIntegrationTest {
     @Autowired
     private WidgetRepository repository;
 
+    @Before
+    public void setUp() throws Exception {
+        repository.dropAllWidgets();
+    }
+
     @Test
     public void shouldCreateWidget() throws Exception {
         var request = WidgetCreationRequest.builder()
@@ -44,7 +50,7 @@ public class WidgetControllerIntegrationTest {
                 .build();
 
         mockMvc.perform(
-                post("/widget")
+                post("/widgets")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -74,7 +80,7 @@ public class WidgetControllerIntegrationTest {
                 .build());
 
         mockMvc.perform(
-                get("/widget/{id}", widget.getId())
+                get("/widgets/{id}", widget.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
@@ -87,9 +93,33 @@ public class WidgetControllerIntegrationTest {
     }
 
     @Test
+    public void shouldRetrieveAllWidgetsSortedByZIndex() throws Exception {
+        var widget1 = repository.save(Widget.builder()
+                .coordinates(new Point(0, 0))
+                .width(100)
+                .height(100)
+                .zIndex(1)
+                .build());
+
+        var widget2 = repository.save(Widget.builder()
+                .coordinates(new Point(10, 10))
+                .width(200)
+                .height(200)
+                .zIndex(2)
+                .build());
+
+        mockMvc.perform(
+                get("/widgets")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(widget2.getId().toString()))
+                .andExpect(jsonPath("$[1].id").value(widget1.getId().toString()));
+    }
+
+    @Test
     public void shouldReturn404WhenWidgetByIdNotFound() throws Exception {
         mockMvc.perform(
-                get("/widget/{id}", UUID.randomUUID())
+                get("/widgets/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$").doesNotExist());
@@ -105,12 +135,12 @@ public class WidgetControllerIntegrationTest {
                 .build());
 
         mockMvc.perform(
-                delete("/widget/{id}", widget.getId())
+                delete("/widgets/{id}", widget.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         mockMvc.perform(
-                delete("/widget/{id}", widget.getId())
+                delete("/widgets/{id}", widget.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -132,7 +162,7 @@ public class WidgetControllerIntegrationTest {
                 .build();
 
         mockMvc.perform(
-                patch("/widget/{widgetId}", widget.getId())
+                patch("/widgets/{widgetId}", widget.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
