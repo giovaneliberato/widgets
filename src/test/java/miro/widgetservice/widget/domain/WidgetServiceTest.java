@@ -9,13 +9,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.awt.*;
 import java.util.List;
+import java.util.UUID;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WidgetServiceTest {
@@ -94,4 +94,15 @@ public class WidgetServiceTest {
         assertThat(((Widget) updated.get(2)).getZIndex()).isEqualTo(4);
     }
 
+    @Test
+    public void shouldReturnErrorWhenWidgetToBeDeletesIsNotFound() throws WidgetNotFoundException {
+        doThrow(new WidgetNotFoundException()).when(repository).deleteById(any());
+        assertThat(service.deleteById(UUID.randomUUID())).isPresent();
+    }
+
+    @Test
+    public void shouldNotReturnErrorWhenWidgetToBeDeletesIsFound() throws WidgetNotFoundException {
+        doNothing().when(repository).deleteById(any());
+        assertThat(service.deleteById(UUID.randomUUID())).isNotPresent();
+    }
 }

@@ -15,8 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.awt.*;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -96,4 +95,23 @@ public class WidgetControllerIntegrationTest {
                 .andExpect(jsonPath("$").doesNotExist());
     }
 
+    @Test
+    public void shouldDeleteWidgetById() throws Exception {
+        var widget = repository.save(Widget.builder()
+                .coordinates(new Point(0, 0))
+                .width(100)
+                .height(100)
+                .zIndex(1)
+                .build());
+
+        mockMvc.perform(
+                delete("/widget/{id}", widget.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                delete("/widget/{id}", widget.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 }

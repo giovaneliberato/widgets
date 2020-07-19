@@ -7,8 +7,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static java.util.Comparator.comparingInt;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.*;
 
 @Repository
 public class WidgetRepository {
@@ -65,5 +64,19 @@ public class WidgetRepository {
                 .stream()
                 .filter(w -> w.getId().equals(widgetId))
                 .findFirst();
+    }
+
+    public void deleteById(UUID widgetId) throws WidgetNotFoundException {
+        synchronized (store) {
+            var widgets = getAll().stream()
+                    .collect(partitioningBy(w -> w.getId().equals(widgetId)));
+
+            var found = !widgets.get(true).isEmpty();
+            if (!found) {
+                throw new WidgetNotFoundException();
+            }
+
+            store = widgets.get(false);
+        }
     }
 }

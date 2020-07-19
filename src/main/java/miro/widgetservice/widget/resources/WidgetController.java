@@ -5,16 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.UUID;
 
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 @Controller
 public class WidgetController {
@@ -39,5 +35,12 @@ public class WidgetController {
         return service.getById(widgetId)
                 .map(widget -> new ResponseEntity(WidgetResponse.convertFromDomain(widget), OK))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/widget/{widgetId}")
+    public ResponseEntity deleteWidget(@PathVariable("widgetId") UUID widgetId) {
+        return service.deleteById(widgetId)
+                .map(error -> new ResponseEntity(error, BAD_REQUEST))
+                .orElse(ResponseEntity.ok().build());
     }
 }

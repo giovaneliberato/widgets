@@ -7,11 +7,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.awt.*;
 import java.time.Instant;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WidgetRepositoryTest {
@@ -136,5 +138,32 @@ public class WidgetRepositoryTest {
         var retrieved = repository.getById(widget2.getId());
         assertThat(retrieved).isPresent();
         assertThat(retrieved.get().getId()).isEqualTo(widget2.getId());
+    }
+
+    @Test
+    public void shouldReturnEmptyWhenWidgetByIdNotFound() {
+        var retrieved = repository.getById(UUID.randomUUID());
+        assertThat(retrieved).isNotPresent();
+    }
+
+    @Test
+    public void shouldDeleteWidgetById() throws WidgetNotFoundException {
+        repository.save(Widget.builder()
+                .coordinates(new Point(0,0))
+                .height(100)
+                .width(100)
+                .zIndex(1)
+                .build());
+
+        var widget2 = repository.save(Widget.builder()
+                .coordinates(new Point(0,0))
+                .height(200)
+                .width(200)
+                .zIndex(2)
+                .build());
+
+        repository.deleteById(widget2.getId());
+        assertThat(repository.getAll()).hasSize(1);
+        assertThatThrownBy(() -> repository.deleteById(widget2.getId())).isInstanceOf(WidgetNotFoundException.class);
     }
 }

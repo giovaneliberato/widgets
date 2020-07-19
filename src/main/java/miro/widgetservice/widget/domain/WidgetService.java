@@ -46,4 +46,13 @@ public class WidgetService {
     public Optional<Widget> getById(UUID widgetId) {
         return repository.getById(widgetId);
     }
+
+    public Optional<String> deleteById(UUID widgetId) {
+        try {
+            repository.deleteById(widgetId);
+            return Optional.empty();
+        } catch (WidgetNotFoundException e) {
+            return Optional.of(e.getMessage());
+        }
+    }
 }
