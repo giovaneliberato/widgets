@@ -114,4 +114,34 @@ public class WidgetControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    public void shouldUpdateWidgetById() throws Exception {
+        var widget = repository.save(Widget.builder()
+                .coordinates(new Point(0, 0))
+                .width(100)
+                .height(100)
+                .zIndex(1)
+                .build());
+
+        var request = WidgetUpdateRequest.builder()
+                .coordinates(new Point(100, 100))
+                .width(200)
+                .height(200)
+                .zIndex(-1)
+                .build();
+
+        mockMvc.perform(
+                patch("/widget/{widgetId}", widget.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(widget.getId().toString()))
+                .andExpect(jsonPath("$.modified_at").exists())
+                .andExpect(jsonPath("$.coordinates.x").value(100))
+                .andExpect(jsonPath("$.coordinates.y").value(100))
+                .andExpect(jsonPath("$.width").value(200))
+                .andExpect(jsonPath("$.height").value(200))
+                .andExpect(jsonPath("$.z_index").value(-1));
+    }
 }

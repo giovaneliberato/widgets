@@ -1,8 +1,6 @@
 package miro.widgetservice.widget.domain;
 
-import miro.widgetservice.widget.resources.WidgetResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -27,6 +25,27 @@ public class WidgetService {
         return repository.save(widget);
     }
 
+    public Optional<String> deleteById(UUID widgetId) {
+        try {
+            repository.deleteById(widgetId);
+            return Optional.empty();
+        } catch (WidgetNotFoundException e) {
+            return Optional.of(e.getMessage());
+        }
+    }
+
+    public Optional<Widget> getById(UUID widgetId) {
+        return repository.getById(widgetId);
+    }
+
+    public Widget updateWidget(UUID widgetId, Widget updatedData) throws WidgetNotFoundException {
+        var widget = repository.getById(widgetId)
+                .map(current -> patchWidget(current, updatedData))
+                .orElseThrow(WidgetNotFoundException::new);
+
+        return repository.update(widget);
+    }
+
     private Integer getForegroundZIndex() {
         return repository.getTopWidget().getZIndex() + 1;
     }
@@ -43,16 +62,15 @@ public class WidgetService {
         return widget.withZIndex(widget.getZIndex() + 1);
     }
 
-    public Optional<Widget> getById(UUID widgetId) {
-        return repository.getById(widgetId);
+    private Widget patchWidget(Widget current, Widget toUpdate) {
+        return current
+                .withZIndex(coalesce(toUpdate.getZIndex(), current.getZIndex()))
+                .withCoordinates(coalesce(toUpdate.getCoordinates(), current.getCoordinates()))
+                .withWidth(coalesce(toUpdate.getWidth(), current.getWidth()))
+                .withHeight(coalesce(toUpdate.getHeight(), current.getHeight()));
     }
 
-    public Optional<String> deleteById(UUID widgetId) {
-        try {
-            repository.deleteById(widgetId);
-            return Optional.empty();
-        } catch (WidgetNotFoundException e) {
-            return Optional.of(e.getMessage());
-        }
+    public static <T> T coalesce(T a, T b) {
+        return a != null ? a : b;
     }
 }

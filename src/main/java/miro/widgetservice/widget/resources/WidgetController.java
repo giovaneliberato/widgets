@@ -1,8 +1,8 @@
 package miro.widgetservice.widget.resources;
 
+import miro.widgetservice.widget.domain.WidgetNotFoundException;
 import miro.widgetservice.widget.domain.WidgetService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +21,6 @@ public class WidgetController {
 
     @PostMapping("/widget")
     public ResponseEntity<WidgetResponse> createWidget(@Valid @RequestBody WidgetCreationRequest request) {
-
         var created = service.create(request.convertToDomain());
 
         return new ResponseEntity(
@@ -42,5 +41,18 @@ public class WidgetController {
         return service.deleteById(widgetId)
                 .map(error -> new ResponseEntity(error, BAD_REQUEST))
                 .orElse(ResponseEntity.ok().build());
+    }
+
+    @PatchMapping("/widget/{widgetId}")
+    public ResponseEntity<WidgetResponse> updateWidget(
+            @PathVariable("widgetId") UUID widgetId,
+            @RequestBody WidgetUpdateRequest request) {
+
+        try {
+            var updated = service.updateWidget(widgetId, request.convertToDomain());
+            return ResponseEntity.ok(WidgetResponse.convertFromDomain(updated));
+        } catch (WidgetNotFoundException e) {
+            return new ResponseEntity(e.getMessage(), BAD_REQUEST);
+        }
     }
 }

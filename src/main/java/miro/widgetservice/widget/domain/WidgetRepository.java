@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 
+import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.*;
 
@@ -42,6 +43,12 @@ public class WidgetRepository {
         return getAll().stream()
                 .filter(w -> w.getZIndex() >= pointer)
                 .collect(toList());
+    }
+
+    public Widget update(Widget toUpdate) {
+        update(singletonList(toUpdate));
+        return getById(toUpdate.getId())
+                .orElseThrow(IllegalStateException::new);
     }
 
     public void update(List<Widget> toUpdate) {

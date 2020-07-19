@@ -9,6 +9,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static java.util.Arrays.asList;
@@ -104,5 +105,82 @@ public class WidgetServiceTest {
     public void shouldNotReturnErrorWhenWidgetToBeDeletesIsFound() throws WidgetNotFoundException {
         doNothing().when(repository).deleteById(any());
         assertThat(service.deleteById(UUID.randomUUID())).isNotPresent();
+    }
+
+    @Test
+    public void shouldUpdateAllAttributes() throws WidgetNotFoundException {
+        var current = Widget.builder()
+                .id(UUID.randomUUID())
+                .coordinates(new Point(0,0))
+                .height(100)
+                .width(100)
+                .zIndex(1)
+                .build();
+
+        var updatedData = current
+                .withCoordinates(new Point(100, 100))
+                .withWidth(200)
+                .withHeight(200)
+                .withZIndex(-1);
+
+        when(repository.getById(current.getId())).thenReturn(Optional.of(current));
+        when(repository.update(any(Widget.class))).then(returnsFirstArg());
+
+        var updated = service.updateWidget(current.getId(), updatedData);
+
+        assertThat(updated.getId()).isEqualTo(current.getId());
+        assertThat(updated.getCoordinates()).isEqualTo(updatedData.getCoordinates());
+        assertThat(updated.getHeight()).isEqualTo(updatedData.getHeight());
+        assertThat(updated.getWidth()).isEqualTo(updatedData.getWidth());
+        assertThat(updated.getZIndex()).isEqualTo(updatedData.getZIndex());
+    }
+
+    @Test
+    public void shouldNotOverrideAttributesIfValusIsNull() throws WidgetNotFoundException {
+        var current = Widget.builder()
+                .id(UUID.randomUUID())
+                .coordinates(new Point(0,0))
+                .height(100)
+                .width(100)
+                .zIndex(1)
+                .build();
+
+        var updatedData = current
+                .withCoordinates(new Point(100, 100))
+                .withWidth(null)
+                .withHeight(null);
+
+        when(repository.getById(current.getId())).thenReturn(Optional.of(current));
+        when(repository.update(any(Widget.class))).then(returnsFirstArg());
+
+        var updated = service.updateWidget(current.getId(), updatedData);
+
+        assertThat(updated.getId()).isEqualTo(current.getId());
+        assertThat(updated.getCoordinates()).isEqualTo(updatedData.getCoordinates());
+        assertThat(updated.getHeight()).isEqualTo(current.getHeight());
+        assertThat(updated.getWidth()).isEqualTo(current.getWidth());
+        assertThat(updated.getZIndex()).isEqualTo(current.getZIndex());
+    }
+
+    @Test
+    public void shouldNotUpdateId() throws WidgetNotFoundException {
+        var current = Widget.builder()
+                .id(UUID.randomUUID())
+                .coordinates(new Point(0,0))
+                .height(100)
+                .width(100)
+                .zIndex(1)
+                .build();
+
+        var updatedData = current
+                .withId(UUID.randomUUID());
+
+
+        when(repository.getById(current.getId())).thenReturn(Optional.of(current));
+        when(repository.update(any(Widget.class))).then(returnsFirstArg());
+
+        var updated = service.updateWidget(current.getId(), updatedData);
+
+        assertThat(updated.getId()).isEqualTo(current.getId());
     }
 }
