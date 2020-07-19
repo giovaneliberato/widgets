@@ -1,4 +1,4 @@
-package miro.widgetservice.widget;
+package miro.widgetservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
