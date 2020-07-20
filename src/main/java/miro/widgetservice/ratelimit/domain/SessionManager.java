@@ -18,10 +18,6 @@ public class SessionManager {
 
     private final Map<String, Session> sessions = new HashMap<>();
 
-    public boolean allowRequestForDefaultConfig(String ip) {
-        return allowRequest("*", ip);
-    }
-
     public boolean allowRequest(String handlerIdentity, String ip) {
         var config = rateLimitConfigManager.getByHandlerIdentifier(handlerIdentity);
         var session = getOrCreateSession(handlerIdentity, config, ip);
@@ -35,6 +31,12 @@ public class SessionManager {
         }
 
         return false;
+    }
+
+    public Session.SessionWindow getSessionWindow(String handlerIdentity, String ip) {
+        var config = rateLimitConfigManager.getByHandlerIdentifier(handlerIdentity);
+        var session = getOrCreateSession(handlerIdentity, config, ip);
+        return session.getOrCreateSessionWindow(handlerIdentity, config.getTimeWindowInSeconds());
     }
 
     private Session getOrCreateSession(String handlerIdentity, RateLimitConfig rateLimitConfiguration, String ip) {
