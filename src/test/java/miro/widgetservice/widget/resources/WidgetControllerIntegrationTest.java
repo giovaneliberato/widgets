@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.awt.*;
 import java.util.UUID;
 
+import static java.util.Arrays.asList;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -108,12 +109,34 @@ public class WidgetControllerIntegrationTest {
                 .zIndex(2)
                 .build());
 
-        mockMvc.perform(
-                get("/widgets")
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/widgets"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(widget2.getId().toString()))
                 .andExpect(jsonPath("$[1].id").value(widget1.getId().toString()));
+    }
+
+    @Test
+    public void shouldRetrieveAllWidgetsWithinSelection() throws Exception {
+        repository.save(Widget.builder()
+                .coordinates(new Point(150,50))
+                .height(100)
+                .width(100)
+                .zIndex(2)
+                .build());
+
+        var widget = repository.save(Widget.builder()
+                .coordinates(new Point(0,50))
+                .height(100)
+                .width(100)
+                .zIndex(1)
+                .build());
+
+        mockMvc.perform(
+                get("/widgets")
+                        .param("selectionStart", "0,0")
+                        .param("selectionEnd", "100,150"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(widget.getId().toString()));
     }
 
     @Test

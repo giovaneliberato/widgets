@@ -1,5 +1,7 @@
 package miro.widgetservice.widget.resources;
 
+import miro.widgetservice.widget.domain.Selection;
+import miro.widgetservice.widget.domain.Widget;
 import miro.widgetservice.widget.domain.WidgetNotFoundException;
 import miro.widgetservice.widget.domain.WidgetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +10,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
+import java.awt.*;
+import java.util.List;
 import java.util.UUID;
 
+import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.*;
 
@@ -38,12 +44,29 @@ public class WidgetController {
     }
 
     @GetMapping("/widgets")
-    public ResponseEntity getAllWidgets() {
-        return ResponseEntity.ok(service.getAllWidgets()
+    public ResponseEntity getAllWidgets(
+            @RequestParam(value = "selectionStart", required = false) Integer[] start,
+            @RequestParam(value = "selectionEnd", required = false) Integer[] end) {
+
+        List<Widget> widgetList;
+
+        if (!isNull(start) && !isNull(end)) {
+            var selection = Selection.builder()
+                    .start(new Point(start[0], start[1]))
+                    .end(new Point(end[0], end[1]))
+                    .build();
+
+            widgetList = service.getWidgetsInsideSelection(selection);
+        } else {
+           widgetList = service.getAllWidgets();
+        }
+
+        return ResponseEntity.ok(widgetList
                 .stream()
                 .map(WidgetResponse::convertFromDomain)
                 .collect(toList()));
     }
+
 
     @DeleteMapping("/widgets/{widgetId}")
     public ResponseEntity deleteWidget(@PathVariable("widgetId") UUID widgetId) {

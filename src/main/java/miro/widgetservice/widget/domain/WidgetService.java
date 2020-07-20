@@ -41,7 +41,7 @@ public class WidgetService {
     }
 
     public List<Widget> getWidgetsInsideSelection(Selection selection) {
-        return null;
+        return repository.getWidgetsInsideSelection(selection);
     }
 
     public Widget updateWidget(UUID widgetId, Widget updatedData) throws WidgetNotFoundException {
