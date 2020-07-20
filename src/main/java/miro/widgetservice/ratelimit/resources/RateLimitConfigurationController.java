@@ -4,7 +4,11 @@ import miro.widgetservice.ratelimit.domain.RateLimitConfigManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 import static java.util.stream.Collectors.toList;
 
@@ -22,6 +26,13 @@ public class RateLimitConfigurationController {
                         .map(RateLimitConfigResponse::convert)
                         .collect(toList())
         );
+    }
+
+    @PostMapping("/admin/rate-limit")
+    public ResponseEntity createConfig(@Valid @RequestBody RateLimitUpdateRequest request) {
+        manager.create(request.toDomain());
+
+        return getAllRateLimitConfigs();
     }
 
 }

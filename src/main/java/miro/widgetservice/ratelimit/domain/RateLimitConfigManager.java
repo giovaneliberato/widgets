@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
-import static miro.widgetservice.ObjectUtils.coalesce;
 
 @Component
 public class RateLimitConfigManager {
@@ -52,6 +51,10 @@ public class RateLimitConfigManager {
                 .stream()
                 .sorted(comparing(RateLimitConfig::getConfiguredBy).reversed())
                 .collect(toList());
+    }
+
+    public void create(RateLimitConfig config) {
+        rateLimitConfigList.add(config.withConfiguredBy(RateLimitConfig.ConfigType.OVERRIDDEN_BY_ADMIN));
     }
 
     private void addCustomDefinedConfigs() {
