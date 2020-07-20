@@ -3,6 +3,7 @@ package miro.widgetservice.widget.domain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,6 +38,10 @@ public class WidgetService {
 
     public Optional<Widget> getById(UUID widgetId) {
         return repository.getById(widgetId);
+    }
+
+    public List<Widget> getWidgetsInsideSelection(Selection selection) {
+        return null;
     }
 
     public Widget updateWidget(UUID widgetId, Widget updatedData) throws WidgetNotFoundException {

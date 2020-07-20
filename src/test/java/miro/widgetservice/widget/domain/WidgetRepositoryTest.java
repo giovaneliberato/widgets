@@ -1,5 +1,6 @@
 package miro.widgetservice.widget.domain;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -20,6 +21,11 @@ public class WidgetRepositoryTest {
 
     @InjectMocks
     private WidgetRepository repository;
+
+    @Before
+    public void setUp() throws Exception {
+        repository.dropAllWidgets();
+    }
 
     @Test
     public void shouldSaveWidget() {
@@ -95,6 +101,58 @@ public class WidgetRepositoryTest {
         assertThat(overlaidWidgets).hasSize(2);
         assertThat(overlaidWidgets.get(0).getZIndex()).isEqualTo(3);
         assertThat(overlaidWidgets.get(1).getZIndex()).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldFilterWidgetsBiggerThanSelection() {
+        repository.save(Widget.builder()
+                .coordinates(new Point(0,0))
+                .height(100)
+                .width(100)
+                .zIndex(2)
+                .build());
+
+        var widget = repository.save(Widget.builder()
+                .coordinates(new Point(0,0))
+                .height(50)
+                .width(50)
+                .zIndex(1)
+                .build());
+
+        var selection = Selection.builder()
+                .start(new Point(0, 0))
+                .end(new Point(50, 50))
+                .build();
+
+        var widgets = repository.getWidgetsInsideSelection(selection);
+        assertThat(widgets).hasSize(1);
+        assertThat(widgets.get(0).getId()).isEqualTo(widget.getId());
+    }
+
+    @Test
+    public void shouldFilterWidgetsWhereTheBorderOutliesTheSelection() {
+        repository.save(Widget.builder()
+                .coordinates(new Point(150,50))
+                .height(100)
+                .width(100)
+                .zIndex(2)
+                .build());
+
+        var widget = repository.save(Widget.builder()
+                .coordinates(new Point(0,50))
+                .height(100)
+                .width(100)
+                .zIndex(1)
+                .build());
+
+        var selection = Selection.builder()
+                .start(new Point(0, 0))
+                .end(new Point(100, 150))
+                .build();
+
+        var widgets = repository.getWidgetsInsideSelection(selection);
+        assertThat(widgets).hasSize(1);
+        assertThat(widgets.get(0).getId()).isEqualTo(widget.getId());
     }
 
     @Test

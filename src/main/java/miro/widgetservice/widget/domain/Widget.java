@@ -26,4 +26,22 @@ public class Widget implements Serializable {
 
     private Instant modifiedAt;
 
+    public Integer getArea() {
+        return (int) Math.sqrt(width * height);
+    }
+
+    public boolean isContainedBy(Selection selection) {
+        var topLeftBorder = coordinates.getX();
+        var topRightBorder = coordinates.getX() + getWidth();
+        var bottomLeftBorder = coordinates.getY();
+        var bottomRightBorder = coordinates.getY() + getHeight();
+
+        return topLeftBorder >= selection.getStart().getX() &&
+                topRightBorder <= selection.getEnd().getX() &&
+                bottomLeftBorder >= selection.getStart().getY() &&
+                bottomRightBorder <= selection.getEnd().getY();
+
+
+    }
+
 }

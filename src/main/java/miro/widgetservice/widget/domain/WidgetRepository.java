@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparingInt;
@@ -31,6 +32,15 @@ public class WidgetRepository {
 
     public List<Widget> getAll() {
         return store.stream()
+                .sorted(comparingInt(Widget::getZIndex).reversed())
+                .collect(toList());
+    }
+
+    public List<Widget> getWidgetsInsideSelection(Selection selection) {
+        return store
+                .stream()
+                .filter(w -> w.getArea() <= selection.getArea())
+                .filter(w -> w.isContainedBy(selection))
                 .sorted(comparingInt(Widget::getZIndex).reversed())
                 .collect(toList());
     }
