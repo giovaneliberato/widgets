@@ -1,4 +1,4 @@
-package miro.widgetservice.ratelimit;
+package miro.widgetservice.ratelimit.domain;
 
 
 import lombok.Builder;

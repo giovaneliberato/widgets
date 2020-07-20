@@ -1,4 +1,4 @@
-package miro.widgetservice.ratelimit;
+package miro.widgetservice.ratelimit.domain;
 
 
 import java.lang.annotation.ElementType;
@@ -10,7 +10,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RateLimit {
 
-    int allowedRequests() default 1000;
-    int timeWindowInSeconds() default 60;
+    String handlerIdentity();
+    int allowedRequests() default -1;
+    int timeWindowInSeconds() default -1;
 
 }

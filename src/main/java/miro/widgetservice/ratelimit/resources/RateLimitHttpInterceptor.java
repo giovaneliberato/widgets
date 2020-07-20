@@ -1,14 +1,16 @@
-package miro.widgetservice.ratelimit;
+package miro.widgetservice.ratelimit.resources;
 
+import miro.widgetservice.ratelimit.domain.RateLimit;
+import miro.widgetservice.ratelimit.domain.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@Component
+import static java.util.Objects.isNull;
+
 public class RateLimitHttpInterceptor implements HandlerInterceptor {
 
     @Autowired
@@ -18,9 +20,11 @@ public class RateLimitHttpInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         var handlerMethod = (HandlerMethod) handler;
         var rateLimitConfiguration = handlerMethod.getMethodAnnotation(RateLimit.class);
-        var handlerIdentity = String.format("%s %s", request.getMethod(), request.getPathInfo());
 
-        return sessionManager.allowRequest(handlerIdentity, rateLimitConfiguration, "");
+        if (isNull(rateLimitConfiguration)) {
+            return sessionManager.allowRequestForDefaultConfig(request.getRemoteAddr());
+        }
+        return sessionManager.allowRequest(rateLimitConfiguration.handlerIdentity(), request.getRemoteAddr());
     }
 
     @Override

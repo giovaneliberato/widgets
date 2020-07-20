@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
+import static miro.widgetservice.ObjectUtils.coalesce;
 
 @Component
 public class WidgetService {
@@ -69,10 +70,6 @@ public class WidgetService {
                 .withCoordinates(coalesce(toUpdate.getCoordinates(), current.getCoordinates()))
                 .withWidth(coalesce(toUpdate.getWidth(), current.getWidth()))
                 .withHeight(coalesce(toUpdate.getHeight(), current.getHeight()));
-    }
-
-    public static <T> T coalesce(T a, T b) {
-        return a != null ? a : b;
     }
 
     public List<Widget> getAllWidgets() {

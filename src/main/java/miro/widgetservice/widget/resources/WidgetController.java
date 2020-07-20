@@ -1,11 +1,10 @@
 package miro.widgetservice.widget.resources;
 
-import miro.widgetservice.ratelimit.RateLimit;
+import miro.widgetservice.ratelimit.domain.RateLimit;
 import miro.widgetservice.widget.domain.WidgetNotFoundException;
 import miro.widgetservice.widget.domain.WidgetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -14,8 +13,8 @@ import java.util.UUID;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.*;
 
-@RateLimit
-@Controller
+@RateLimit(handlerIdentity = "WidgetController")
+@RestController
 public class WidgetController {
 
     @Autowired
@@ -38,7 +37,7 @@ public class WidgetController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @RateLimit(allowedRequests = 200)
+    @RateLimit(handlerIdentity = "getAllWidgets", allowedRequests = 200)
     @GetMapping("/widgets")
     public ResponseEntity getAllWidgets() {
         return ResponseEntity.ok(service.getAllWidgets()
